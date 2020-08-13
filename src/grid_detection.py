@@ -10,7 +10,6 @@ def DetectGrid(img):
 	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 	blur = cv2.GaussianBlur(gray, (5, 5), 0)
 	thresh = cv2.adaptiveThreshold(blur, 255, 1, 1, 5, 2)
-	edges = cv2.Canny(blur, 75, 150)
 
 	contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -73,7 +72,7 @@ def DetectGrid(img):
 
 #Testing the functions here
 if __name__ == '__main__':
-	img = cv2.imread('./images/sudoku_newspaper_3.jpg')
+	img = cv2.imread('./images/sudoku_newspaper_4.jpg')
 	img = DetectGrid(img)
 	cv2.imshow('test', img)
 	cv2.waitKey(0)
