@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import itertools
+import matplotlib.pyplot as plt
+import math
 
 cv2.namedWindow('test', cv2.WINDOW_NORMAL)
 
@@ -50,10 +52,10 @@ def DetectGrid(img):
 	#print(p_1, p_2, p_3, p_4)
 
 	pts_1 = np.float32([p_1, p_2, p_3, p_4])
-	print(pts_1)
+	#print(pts_1)
 
 	pts_2 = np.float32([[0, 0], [512, 0], [0, 512], [512, 512]])
-	print(pts_2)
+	#print(pts_2)
 
 	mask = np.zeros(gray.shape, np.uint8)
 	cv2.drawContours(mask, [best_combination], -1, 255, -1)
@@ -70,9 +72,40 @@ def DetectGrid(img):
 
 	return dst
 
+def DetectSubGrids(grid):
+	gray = cv2.cvtColor(grid, cv2.COLOR_BGR2GRAY)
+	blur = cv2.GaussianBlur(gray, (5, 5), 0)
+	thresh = cv2.adaptiveThreshold(blur, 255, 1, 1, 5, 2)
+	thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, (3, 3), iterations = 2)
+
+	#contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+	#for contour in contours:
+	#	if cv2.contourArea(contour) > 4000:
+	#		cv2.drawContours(grid, contour, -1, (0, 0, 255), -1)
+
+	lines = cv2.HoughLinesP(thresh, 1, np.pi / 180, 150, 50, 30)
+
+	print(len(lines))
+
+	for line in lines:
+		line = line[0]
+		cv2.line(grid, (line[0], line[1]), (line[2], line[3]), (0, 0, 255), 1)
+
+	return thresh
+
 #Testing the functions here
 if __name__ == '__main__':
-	img = cv2.imread('./images/sudoku_newspaper_4.jpg')
+	img = cv2.imread('./images/sudoku_newspaper_6.jpg')
 	img = DetectGrid(img)
 	cv2.imshow('test', img)
 	cv2.waitKey(0)
+
+	thresh = DetectSubGrids(img)
+	cv2.imshow('test', thresh)
+	cv2.waitKey(0)
+
+	#for i in range(8):
+	#	for j in range(8):
+	#		cv2.imshow('test', img[i * 64: (i + 1) * 64 - 1, j * 64: (j + 1) * 64 - 1])
+	#		cv2.waitKey(0)
